@@ -1,6 +1,7 @@
-import React, { useReducer, useContext } from "react"
+import React, { useReducer, useContext } from 'react'
 import reducer from "./reducer"
 import axios from 'axios'
+
 import { CLEAR_ALERT, 
     DISPLAY_ALERT,
     REGISTER_USER_BEGIN,
@@ -22,6 +23,8 @@ import { CLEAR_ALERT,
     CREATE_USER_BEGIN,
     CREATE_USER_SUCCESS,
     CREATE_USER_ERROR,
+    GET_JOBS_BEGIN,
+    GET_JOBS_SUCCESS,
 } from "./actions"
 
 const token = localStorage.getItem('token')
@@ -46,6 +49,10 @@ const initialState = {
     jobType: 'full-time',
     statusOptions: ['pending', 'interview', 'declined'],
     status: 'pending',
+    jobs: [],
+    totalJobs: 0,
+    page: 1,
+    numOfPages:1,
 }
 const AppContext = React.createContext()
 
@@ -101,7 +108,6 @@ const removeUserFromLocalStorage = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('location')
-
 }
 
 const registerUser = async (currentUser) => {
@@ -228,6 +234,28 @@ const registerUser = async (currentUser) => {
         clearAlert()
     }
 
+    const getJobs = async () => {
+        let url = `/jobs`
+
+        dispatch({type: GET_JOBS_BEGIN })
+        try {
+            const { data } = await authFetch.get(url)
+            const { jobs, totalJobs, numOfPages } = data
+            dispatch({
+                type: GET_JOBS_SUCCESS,
+                payload: {
+                    jobs,
+                    totalJobs,
+                    numOfPages,
+                },
+            })
+        } catch (error) {
+            console.log(error.response)
+            //logoutUser()
+        }
+        clearAlert()
+    }
+
     return (
         <AppContext.Provider
             value={{
@@ -242,6 +270,7 @@ const registerUser = async (currentUser) => {
                 handleChange,
                 clearValues,
                 createJob,
+                getJobs,
             }}
         >
             {children}
