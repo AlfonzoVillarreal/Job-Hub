@@ -1,4 +1,4 @@
-import { useAppContext } from "../context/appContext"
+import { useAppContext } from '../context/appContext'
 import { useEffect } from 'react'
 import Loading from './Loading'
 import Job from './Job'
@@ -10,7 +10,7 @@ const JobsContainer = () => {
         jobs, 
         isLoading, 
         page, 
-        totalJobs 
+        totalJobs,
     } = useAppContext()
     
     useEffect(() => {
@@ -21,23 +21,24 @@ const JobsContainer = () => {
     }
 
     if (jobs.length === 0) {
-        return <Wrapper>
-            <h2>No Jobs To Display...</h2>
-        </Wrapper>
+        return (
+            <Wrapper>
+                <h2>No Jobs To Display...</h2>
+            </Wrapper>
+        )
     }
 
 
     return (
         <Wrapper>
             <h5>
-                {totalJobs} job{jobs.length > 1 && 's'} found
+                {totalJobs} job{jobs.length >1 && 's'} found
             </h5>
-            <div className="jobs">
-                {jobs.map((job)=>{
-                    return <Job key={job._id}{...job}/>
+            <div className='jobs'>
+                {jobs.map((job) => {
+                    return <Job key={job._id} {...job} />
                 })}
             </div>
-            
         </Wrapper>
     )
 }

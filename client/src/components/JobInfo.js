@@ -1,6 +1,11 @@
-const JobsInfo = () => {
+import Wrapper from '../assets/wrappers/JobInfo'
+
+const JobsInfo = ({ icon,text }) => {
     return (
-        <h2>Jobs Info</h2>
+        <Wrapper>
+            <span className='icon'>{icon}</span>
+            <span className='text'>{text}</span>
+        </Wrapper>
     )
 }
 

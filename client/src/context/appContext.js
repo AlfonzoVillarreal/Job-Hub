@@ -25,6 +25,7 @@ import { CLEAR_ALERT,
     CREATE_USER_ERROR,
     GET_JOBS_BEGIN,
     GET_JOBS_SUCCESS,
+    SET_EDIT_JOB,
 } from "./actions"
 
 const token = localStorage.getItem('token')
@@ -239,7 +240,7 @@ const registerUser = async (currentUser) => {
 
         dispatch({type: GET_JOBS_BEGIN })
         try {
-            const { data } = await authFetch.get(url)
+            const { data } = await authFetch(url)
             const { jobs, totalJobs, numOfPages } = data
             dispatch({
                 type: GET_JOBS_SUCCESS,
@@ -254,6 +255,16 @@ const registerUser = async (currentUser) => {
             //logoutUser()
         }
         clearAlert()
+    }
+
+    const setEditJob = (id) => {
+        dispatch({type: SET_EDIT_JOB, payload: { id } })
+    }
+    const editJob = () => {
+        console.log('edit job');
+    }
+    const deleteJob = (id) => {
+        console.log(`delete job : ${id}`)
     }
 
     return (
@@ -271,6 +282,9 @@ const registerUser = async (currentUser) => {
                 clearValues,
                 createJob,
                 getJobs,
+                setEditJob,
+                deleteJob,
+                editJob,
             }}
         >
             {children}
