@@ -2,7 +2,8 @@ import React, { useReducer, useContext } from 'react'
 import reducer from "./reducer"
 import axios from 'axios'
 
-import { CLEAR_ALERT, 
+import { 
+    CLEAR_ALERT, 
     DISPLAY_ALERT,
     REGISTER_USER_BEGIN,
     REGISTER_USER_SUCCESS,
@@ -30,6 +31,10 @@ import { CLEAR_ALERT,
     EDIT_JOB_BEGIN,
     EDIT_JOB_SUCCESS,
     EDIT_JOB_ERROR,
+    SHOW_STATS_BEGIN,
+    SHOW_STATS_SUCCESS,
+    CLEAR_FILTERS,
+    CHANGE_PAGE,
 } from "./actions"
 
 const token = localStorage.getItem('token')
@@ -58,6 +63,13 @@ const initialState = {
     totalJobs: 0,
     page: 1,
     numOfPages:1,
+    stats: {},
+    monthlyApplications: [],
+    search: '',
+    searchStatus: 'all',
+    searchType: 'all',
+    sort: 'latest',
+    sortOptions: ['latest', 'oldest', 'a-z', 'z-a'],
 }
 const AppContext = React.createContext()
 
@@ -103,36 +115,36 @@ const AppProvider = ({children}) => {
         }, 3000)
     }
 
-const addUserToLocalStorage = ({ user, token, location }) => {
-    localStorage.setItem('user', JSON.stringify(user))
-    localStorage.setItem('token', token)
-    localStorage.setItem('location', location)
-}
+    const addUserToLocalStorage = ({ user, token, location }) => {
+        localStorage.setItem('user', JSON.stringify(user))
+        localStorage.setItem('token', token)
+        localStorage.setItem('location', location)
+    }
 
-const removeUserFromLocalStorage = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    localStorage.removeItem('location')
-}
+    const removeUserFromLocalStorage = () => {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        localStorage.removeItem('location')
+    }
 
-const registerUser = async (currentUser) => {
-    dispatch({ type: REGISTER_USER_BEGIN })
-    try {
-        const response = await axios.post('/api/v1/auth/register', currentUser)
-        console.log(response);
-        const { user, token, location} = response.data
-        dispatch({
-            type:REGISTER_USER_SUCCESS, 
-            payload:{ user, token, location },
-        })
-        addUserToLocalStorage({ user, token, location })
-        } catch (error) {
-            console.log(error.response)
+    const registerUser = async (currentUser) => {
+        dispatch({ type: REGISTER_USER_BEGIN })
+        try {
+            const response = await axios.post('/api/v1/auth/register', currentUser)
+            console.log(response);
+            const { user, token, location} = response.data
             dispatch({
-                type: REGISTER_USER_ERROR, 
-                payload: { msg: error.response.data.msg },
+                type:REGISTER_USER_SUCCESS, 
+                payload:{ user, token, location },
             })
-        }
+            addUserToLocalStorage({ user, token, location })
+            } catch (error) {
+                console.log(error.response)
+                dispatch({
+                    type: REGISTER_USER_ERROR, 
+                    payload: { msg: error.response.data.msg },
+                })
+            }
         clearAlert()
     }
 
@@ -240,8 +252,11 @@ const registerUser = async (currentUser) => {
     }
 
     const getJobs = async () => {
-        let url = `/jobs`
-
+        const { page, search, searchStatus, searchType, sort } = state
+        let url = `/jobs?page=${page}&status=${searchStatus}&jobType=${searchType}&sort=${sort}`
+        if (search) {
+            url = url + `&search=${search}`
+        }
         dispatch({type: GET_JOBS_BEGIN })
         try {
             const { data } = await authFetch(url)
@@ -300,6 +315,32 @@ const registerUser = async (currentUser) => {
         }
     }
 
+    const showStats = async () => {
+        dispatch({ type: SHOW_STATS_BEGIN })
+        try {
+            const { data } = await authFetch('/jobs/stats')
+            dispatch({
+                type: SHOW_STATS_SUCCESS,
+                payload: {
+                    stats: data.defaultStats,
+                    monthlyApplications: data.monthlyApplications,
+                },
+            })
+        } catch (error) {
+            console.log(error.response)
+                //logoutUser()
+            }
+            clearAlert()
+        }
+
+        const clearFilters = () => {
+            dispatch({ type: CLEAR_FILTERS })
+        }
+
+        const changePage = (page) => {
+            dispatch({ type: CHANGE_PAGE, payload: { page } } )
+        }
+
     return (
         <AppContext.Provider
             value={{
@@ -318,6 +359,9 @@ const registerUser = async (currentUser) => {
                 setEditJob,
                 deleteJob,
                 editJob,
+                showStats,
+                clearFilters,
+                changePage,
             }}
         >
             {children}

@@ -20,7 +20,7 @@ const Wrapper = styled.aside`
     opacity: 1;
   }
   .content {
-    background: var(--white);
+    background: #f5f5f5;
     width: var(--fluid-width);
     height: 95vh;
     border-radius: var(--borderRadius);
@@ -48,7 +48,7 @@ const Wrapper = styled.aside`
   .nav-link {
     display: flex;
     align-items: center;
-    color: var(--grey-500);
+    color: 	#828A8F;
     padding: 1rem 0;
     text-transform: capitalize;
     transition: var(--transition);
